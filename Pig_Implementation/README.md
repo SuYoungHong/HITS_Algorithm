@@ -2,11 +2,11 @@
 
 ### run_scripts.sh
 Runs algorithm. 
-	* Concatenates different pig files to create intermediate pig script: HITS.pig with user specified number of iterations.
-		* Set number of iterations in line 4:
-		* seq 1 <your desired number of iterations> | xargs <etc.>
-	* Runs HIVE_PrepForPig.sql to prepare Hive tables to store outputs
-	* Then runs HITS.pig
+* Concatenates different pig files to create intermediate pig script: HITS.pig with user specified number of iterations.
+	* Set number of iterations in line 4:
+	* seq 1 &lt;your desired number of iterations&gt; | xargs &lt;etc.&gt;
+* Runs HIVE_PrepForPig.sql to prepare Hive tables to store outputs
+* Then runs HITS.pig
 
 
 ### HIVE_PrepForPig.sql
