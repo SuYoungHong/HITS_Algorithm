@@ -14,8 +14,9 @@ PAGEIDS = LOAD 'web.pageids' USING org.apache.hive.hcatalog.pig.HCatLoader();
 
 PAGELINKS = LOAD 'web.pagelinks' USING org.apache.hive.hcatalog.pig.HCatLoader();
 
-pig.tmpfilecompression true;
-pig.tmpfilecompression.codec lzo;
+SET pig.tmpfilecompression true;
+SET pig.tmpfilecompression.codec lzo;
+SET DEFAULT_PARALLEL 20;
 
 -- ******************************************************
 -- * initialize authority table and hubs table

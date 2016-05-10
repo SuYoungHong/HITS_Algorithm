@@ -1,0 +1,72 @@
+notes:
+
+titles-sorted.txt
+	just names of titles
+	index position is like the ID
+
+links-simple-sorted.txt
+	index position is like the ID (supposed to correspond to titles)
+
+	from 	to (multiple)
+	page  : page page page
+
+	so first thing is page, then delimited by : and then 1 or more pages, separated by spaces
+
+
+HITS:
+
+	so there's two components:
+
+		authority score
+		hub score
+
+	authority score is basically, how many pages link TO it
+
+	hub score is basically how many pages its linkes OUT to 
+
+they depend on each other:
+
+	authority: sum of hub scores of pages that link TO it
+	hub: sum of authority scores of pages it links OUT to 
+
+calculate scores by SUMMING everything with NORMALIZATION
+	normalize by (a^2 + b^2 ...)^(1/2)
+
+	so sum everything, divide by the norm
+
+		WAIT< this is separte step
+
+run algo this way:
+
+	everything initialized with 1
+	run Authority Update (SUM ONLY)
+	run Hub update (SUM ONLY)
+	normalize both 
+		hub score: divide each score by: root sum of squares of all hub scores (all!)
+		authority score: divide each score by: root sum of squares of all authority scores (all!)
+
+
+--------
+
+data cleaning: 
+
+	make sure you remove all pages that don't link to it, and that don't link to anything!
+
+----------
+
+my cluster:
+
+	- connect
+
+	ssh -i /Users/coolguy/Desktop/AWS_stuff/supersecret.pem hadoop@ec2-52-26-22-227.us-west-2.compute.amazonaws.com
+
+	- monitering
+
+	ssh -i /Users/coolguy/Desktop/AWS_stuff/supersecret.pem -ND 8157 hadoop@ec2-52-26-22-227.us-west-2.compute.amazonaws.com
+
+	scp -i /Users/coolguy/Desktop/AWS_stuff/supersecret.pem hadoop@ec2-52-26-22-227.us-west-2.compute.amazonaws.com:/mnt/var/log/pig/* /Users/coolguy/Downloads
+
+
+
+
+

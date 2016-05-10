@@ -49,7 +49,7 @@ AUTH = FOREACH AUTH GENERATE page_id, SUM(hub) AS new_auth, 1 AS old_auth;
 -- * update hubs using authoirty scores
 -- ******************************************************
 
-HUB = JOIN AUTH BY page_id, PAGELINKS BY to_page USING 'skewed'; 
+HUB = JOIN PAGELINKS BY to_page, AUTH BY page_id USING 'replicated'; 
 
 	-- not sure if this will work
 
@@ -115,7 +115,7 @@ PERF = FOREACH PERF GENERATE CurrentTime() AS time, PERF_AUTH::auth_dif AS auth_
 
 -- * iteration 1
 
-NEW_AUTH = JOIN HUB BY page_id, PAGELINKS BY from_page USING 'skewed';
+NEW_AUTH = JOIN PAGELINKS BY from_page, HUB BY page_id USING 'replicated';
 
 	-- not sure if this will work
 
@@ -125,7 +125,7 @@ NEW_AUTH = FOREACH NEW_AUTH GENERATE page_id, SUM(hub) AS new_auth;
 NEW_AUTH = JOIN NEW_AUTH BY page_id, AUTH BY page_id;
 AUTH = FOREACH NEW_AUTH GENERATE NEW_AUTH::page_id AS page_id, NEW_AUTH::new_auth AS new_auth, AUTH::new_auth AS old_auth;
 -- * 
-NEW_HUB = JOIN AUTH BY page_id, PAGELINKS BY to_page USING 'skewed'; 
+NEW_HUB = JOIN PAGELINKS BY to_page, AUTH BY page_id USING 'replicated'; 
 
 	-- not sure if this will work
 
@@ -162,7 +162,7 @@ PERF = UNION PERF, TEMP_PERF;
 
 -- * iteration 1
 
-NEW_AUTH = JOIN HUB BY page_id, PAGELINKS BY from_page USING 'skewed';
+NEW_AUTH = JOIN PAGELINKS BY from_page, HUB BY page_id USING 'replicated';
 
 	-- not sure if this will work
 
@@ -172,7 +172,7 @@ NEW_AUTH = FOREACH NEW_AUTH GENERATE page_id, SUM(hub) AS new_auth;
 NEW_AUTH = JOIN NEW_AUTH BY page_id, AUTH BY page_id USING;
 AUTH = FOREACH NEW_AUTH GENERATE NEW_AUTH::page_id AS page_id, NEW_AUTH::new_auth AS new_auth, AUTH::new_auth AS old_auth;
 -- * 
-NEW_HUB = JOIN AUTH BY page_id, PAGELINKS BY to_page USING 'skewed'; 
+NEW_HUB = JOIN PAGELINKS BY to_page, AUTH BY page_id USING 'replicated'; 
 
 	-- not sure if this will work
 
