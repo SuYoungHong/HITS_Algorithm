@@ -78,6 +78,8 @@ DROP TABLE prev_auth;
 DROP TABLE prev_hub;
 DROP TABLE Hive_Results_Auth;
 DROP TABLE Hive_Results_Hub;
+DROP TABLE norm_auth;
+DROP TABLE norm_hub;
 
 
 
@@ -110,13 +112,13 @@ CREATE TABLE norm_hub AS SELECT SQRT(SUM(score*score)) AS norm FROM temp_hub;
 
 
 -- * normalize scores
-INSERT OVERWRITE TABLE temp_auth SELECT temp_auth.page, temp_auth.score/norm_auth.norm AS score FROM norm_auth JOIN temp_auth;
-INSERT OVERWRITE TABLE temp_hub SELECT temp_hub.page, temp_hub.score/norm_auth.norm AS score FROM norm_hub JOIN temp_hub;
+INSERT OVERWRITE TABLE temp_auth SELECT temp_auth.page AS page, temp_auth.score/norm_auth.norm AS score FROM norm_auth JOIN temp_auth;
+INSERT OVERWRITE TABLE temp_hub SELECT temp_hub.page AS page, temp_hub.score/norm_hub.norm AS score FROM norm_hub JOIN temp_hub;
 
 
 -- * update performance records
-INSERT INTO TABLE Hive_Results_Auth current_timestamp() AS ts, SELECT SUM(ABS(prev_auth.score - temp_auth.score)) AS change FROM prev_auth JOIN temp_auth ON (prev_auth.page = temp_auth.page);
-INSERT INTO TABLE Hive_Results_Hub current_timestamp() AS ts, SELECT SUM(ABS(prev_hub.score - temp_auth.score)) AS change FROM prev_hub JOIN temp_auth ON (prev_hub.page = temp_auth.page);
+INSERT INTO TABLE Hive_Results_Auth SELECT unix_timestamp() AS ts, SUM(ABS(prev_auth.score - temp_auth.score)) AS change FROM prev_auth JOIN temp_auth ON (prev_auth.page = temp_auth.page);
+INSERT INTO TABLE Hive_Results_Hub SELECT unix_timestamp() AS ts, SUM(ABS(prev_hub.score - temp_auth.score)) AS change FROM prev_hub JOIN temp_auth ON (prev_hub.page = temp_auth.page);
 
 
 -- * update last-step tables with current values
@@ -145,12 +147,12 @@ INSERT OVERWRITE TABLE norm_hub SELECT SQRT(SUM(score*score)) AS norm FROM temp_
 
 -- * normalize scores
 INSERT OVERWRITE TABLE temp_auth SELECT temp_auth.page, temp_auth.score/norm_auth.norm AS score FROM norm_auth JOIN temp_auth;
-INSERT OVERWRITE TABLE temp_hub SELECT temp_hub.page, temp_hub.score/norm_auth.norm AS score FROM norm_hub JOIN temp_hub;
+INSERT OVERWRITE TABLE temp_hub SELECT temp_hub.page, temp_hub.score/norm_hub.norm AS score FROM norm_hub JOIN temp_hub;
 
 
 -- * update performance records
-INSERT INTO TABLE Hive_Results_Auth current_timestamp() AS ts, SELECT SUM(ABS(prev_auth.score - temp_auth.score)) AS change FROM prev_auth JOIN temp_auth ON (prev_auth.page = temp_auth.page);
-INSERT INTO TABLE Hive_Results_Hub current_timestamp() AS ts, SELECT SUM(ABS(prev_hub.score - temp_auth.score)) AS change FROM prev_hub JOIN temp_auth ON (prev_hub.page = temp_auth.page);
+INSERT INTO TABLE Hive_Results_Auth SELECT unix_timestamp() AS ts, SUM(ABS(prev_auth.score - temp_auth.score)) AS change FROM prev_auth JOIN temp_auth ON (prev_auth.page = temp_auth.page);
+INSERT INTO TABLE Hive_Results_Hub SELECT unix_timestamp() AS ts, SUM(ABS(prev_hub.score - temp_auth.score)) AS change FROM prev_hub JOIN temp_auth ON (prev_hub.page = temp_auth.page);
 
 
 -- * update last-step tables with current values
@@ -170,21 +172,18 @@ INSERT OVERWRITE DIRECTORY 's3://hits-data-pagelinks/HIVE_results/AUTHResults/' 
 INSERT OVERWRITE DIRECTORY 's3://hits-data-pagelinks/HIVE_results/HUBResults/'  select * from Hive_Results_Hub;
 
 
--- * drop tables
-DROP TABLE temp_auth;
-DROP TABLE temp_hub;
-DROP TABLE norm_auth;
-DROP TABLE norm_hub;
-
-
 -- * clear old tables for new results
 DROP TABLE final_auth;
 DROP TABLE final_hub;
 
 -- * rename temporary tables to final table
-ALTER TABLE temp_auth TO final_auth;
-ALTER TABLE temp_hub TO final_hub;
+ALTER TABLE temp_auth RENAME TO final_auth;
+ALTER TABLE temp_hub RENAME TO final_hub;
 
+
+-- * drop tables
+DROP TABLE norm_auth;
+DROP TABLE norm_hub;
 
 
 
